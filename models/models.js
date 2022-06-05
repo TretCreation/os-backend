@@ -1,9 +1,9 @@
 const sequelize = require('../db');
-const {DataTypes} = require('sequelize');
+const {Op, DataTypes} = require('sequelize');
 
 const User = sequelize.define('user', {
     id: {
-        type: DataTypes.INTEGER, 
+        type: DataTypes.INTEGER,
         primaryKey:true,
         autoIncrement: true
         // allowNull: false, - NOT NULL
@@ -23,7 +23,7 @@ const User = sequelize.define('user', {
 
 const Cart = sequelize.define('cart', {
     id: {
-        type: DataTypes.INTEGER, 
+        type: DataTypes.INTEGER,
         primaryKey:true,
         autoIncrement: true
     },
@@ -31,7 +31,7 @@ const Cart = sequelize.define('cart', {
 
 const CartProduct = sequelize.define('cart_product', {
     id: {
-        type: DataTypes.INTEGER, 
+        type: DataTypes.INTEGER,
         primaryKey:true,
         autoIncrement: true
     },
@@ -39,21 +39,21 @@ const CartProduct = sequelize.define('cart_product', {
 
 const Product = sequelize.define('product', {
     id: {
-        type: DataTypes.INTEGER, 
+        type: DataTypes.INTEGER,
         primaryKey:true,
         autoIncrement: true
     },
     name: {
-        type: DataTypes.STRING, 
-        unique:true, 
+        type: DataTypes.STRING,
+        unique:true,
         allowNull: false
     },
     price: {
-        type: DataTypes.INTEGER,    
+        type: DataTypes.INTEGER,
         allowNull: false
     },
     rating: {
-        type: DataTypes.STRING, 
+        type: DataTypes.STRING,
         defaultValue: 0
     },
     img: {
@@ -64,45 +64,45 @@ const Product = sequelize.define('product', {
 
 const Type = sequelize.define('type', {
     id: {
-        type: DataTypes.INTEGER, 
+        type: DataTypes.INTEGER,
         primaryKey:true,
         autoIncrement: true
     },
     name: {
         type: DataTypes.STRING,
-        unique: true, 
+        unique: true,
         allowNull: false
     }
 });
 
 const Brand = sequelize.define('brand', {
     id: {
-        type: DataTypes.INTEGER, 
+        type: DataTypes.INTEGER,
         primaryKey:true,
         autoIncrement: true
     },
     name: {
         type: DataTypes.STRING,
-        unique: true, 
+        unique: true,
         allowNull: false
     }
 });
 
 const Rating = sequelize.define('rating', {
     id: {
-        type: DataTypes.INTEGER, 
+        type: DataTypes.INTEGER,
         primaryKey:true,
         autoIncrement: true
     },
     rate: {
-        type: DataTypes.STRING, 
+        type: DataTypes.STRING,
         allowNull: false
     }
 });
 
 const ProductInfo = sequelize.define('product_info', {
     id: {
-        type: DataTypes.INTEGER, 
+        type: DataTypes.INTEGER,
         primaryKey:true,
         autoIncrement: true
     },
@@ -118,7 +118,7 @@ const ProductInfo = sequelize.define('product_info', {
 
 const TypeBrand = sequelize.define('type_brand', {
     id: {
-        type: DataTypes.INTEGER, 
+        type: DataTypes.INTEGER,
         primaryKey:true,
         autoIncrement: true
     }
@@ -130,7 +130,7 @@ Cart.belongsTo(User);
 User.hasMany(Rating);
 Rating.belongsTo(User);
 
-Cart.hasMany(CartProduct) 
+Cart.hasMany(CartProduct)
 CartProduct.belongsTo(Cart)
 
 Type.hasMany(Product)
@@ -152,6 +152,7 @@ Type.belongsToMany(Brand, {through: TypeBrand })
 Brand.belongsToMany(Type, {through: TypeBrand })
 
 module.exports = {
+    Op,
     User,
     Cart,
     CartProduct,
@@ -162,5 +163,3 @@ module.exports = {
     TypeBrand,
     ProductInfo
 }
-
-// https://sequelize.org/docs/v6/core-concepts/assocs/

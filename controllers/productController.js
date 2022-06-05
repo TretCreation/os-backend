@@ -1,6 +1,6 @@
 const uuid = require('uuid');
 const path = require('path');
-const {Product, ProductInfo} = require('../models/models');
+const {Op, Product, ProductInfo} = require('../models/models');
 const ApiError = require('../error/ApiError');
 
 class ProductController {
@@ -34,33 +34,34 @@ class ProductController {
         const {id} = req.params;
         const product = await Product.findOne({
             where: {id},
-            include: [{model: ProductInfo, as: 'info'}] 
+            include: [{model: ProductInfo, as: 'info'}]
         }
         )
         return res.json(product);
     }
-    
+
     async getAll(req, res) {
-        let {brandId, typeId, limit, page} = req.query;
+        let {brandId, typeId, limit, page, filter = ''} = req.query;
         page = page || 1;
         limit = limit || 9;
-        let offset = page * limit - limit;
-        
+        const offset = page * limit - limit;
+        const name = {[Op.like]: `%${filter}%`};
+
         let products;
         if(!brandId && !typeId) {
-            products = await Product.findAndCountAll({limit, offset}); // .findAll
+            products = await Product.findAndCountAll({where: {name}, limit, offset});
         }
         if(brandId && !typeId) {
-            products = await Product.findAndCountAll({where: {brandId}, limit, offset}); 
+            products = await Product.findAndCountAll({where: {name, brandId}, limit, offset});
         }
         if(!brandId && typeId) {
-            products = await Product.findAndCountAll({where: {typeId}}); 
+            products = await Product.findAndCountAll({where: {name, typeId}});
         }
         if(brandId && typeId) {
-            products = await Product.findAndCountAll({where: {brandId, typeId}}); 
+            products = await Product.findAndCountAll({where: {name, brandId, typeId}});
         }
         return res.json(products)
     }
 };
 
-module.exports = new ProductController();  
+module.exports = new ProductController();

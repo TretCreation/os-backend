@@ -2,7 +2,6 @@ require('dotenv').config()
 
 const express = require('express');
 const sequelize = require('./db');
-const models = require('./models/models');
 const cors = require('cors');
 const fileUpload = require('express-fileupload');
 const router = require('./routes/index');
@@ -30,13 +29,6 @@ const start = async () => {
         console.log(error);
     }
 }
-
-
-
-
-// app.get('/', (req, res) => {
-//     res.status(200).json({message: "Nice! It's working"})
-// })
 
 start();
 
