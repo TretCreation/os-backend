@@ -32,7 +32,8 @@ class ProductController {
 
 	async update(req, res, next) {
 		try {
-			let { id, name, price, brandId, typeId, info } = req.body;
+			const { id } = req.params;
+			let { name, price, brandId, typeId, info } = req.body;
 
 			const img = req.files?.img;
 			let fileName = "";
@@ -88,6 +89,18 @@ class ProductController {
 			],
 		});
 		return res.json(product);
+	}
+
+	async delete(req, res) {
+		const { id } = req.params;
+		const result = await Product.destroy({ where: { id } });
+		return res.json(result);
+	}
+
+	async deleteInfo(req, res) {
+		const { id } = req.params;
+		const result = await ProductInfo.destroy({ where: { id } });
+		return res.json(result);
 	}
 
 	async getAll(req, res) {
