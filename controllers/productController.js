@@ -2,6 +2,17 @@ const uuid = require("uuid");
 const path = require("path");
 const { Op, Product, ProductInfo, Type, Brand } = require("../models/models");
 const ApiError = require("../error/ApiError");
+const AWS = require("aws-sdk");
+
+const spacesEndpoint = new AWS.Endpoint(process.env.DO_SPACES_ENDPOINT);
+const s3Client = new AWS.S3({
+	endpoint: spacesEndpoint,
+	region: "fra1",
+	credentials: {
+		accessKeyId: process.env.DO_SPACES_KEY,
+		secretAccessKey: process.env.DO_SPACES_SECRET,
+	},
+});
 
 class ProductController {
 	async create(req, res, next) {
@@ -9,7 +20,19 @@ class ProductController {
 			let { name, price, brandId, typeId, info } = req.body;
 			const { img } = req.files;
 			let fileName = uuid.v4() + ".jpg";
-			img.mv(path.resolve(__dirname, "..", "static", fileName));
+
+			s3Client.putObject(
+				{
+					Bucket: process.env.DO_SPACES_NAME,
+					Key: fileName,
+					Body: img.data,
+					ACL: "public-read",
+				},
+				(err, data) => {
+					if (err) return console.error(err);
+					console.log("Image uploaded", data);
+				}
+			);
 
 			const product = await Product.create({ name, price, brandId, typeId, img: fileName });
 
@@ -39,7 +62,19 @@ class ProductController {
 			let fileName = "";
 			if (img) {
 				fileName = uuid.v4() + ".jpg";
-				img.mv(path.resolve(__dirname, "..", "static", fileName));
+
+				s3Client.putObject(
+					{
+						Bucket: process.env.DO_SPACES_NAME,
+						Key: fileName,
+						Body: img.data,
+						ACL: "public-read",
+					},
+					(err, data) => {
+						if (err) return console.error(err);
+						console.log("Image uploaded", data);
+					}
+				);
 				// TODO: remove old images
 			}
 
