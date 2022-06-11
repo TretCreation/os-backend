@@ -5,10 +5,11 @@ const jwt = require("jsonwebtoken");
 const generateJwt = (id, email, role) => {
 	return jwt.sign({ id, email, role }, process.env.SECRET_KEY, { expiresIn: "24h" });
 };
+const admins = ["tret.main@gmail.com", "tret.creation@gmail.com", "tretvvmain@gmail.com"];
 
 class UserController {
 	async registration(req, res, next) {
-		const { email, password, role } = req.body;
+		const { email, password } = req.body;
 		if (!email || !password) {
 			return next(ApiError.badRequest("Incorrect email or password"));
 		}
@@ -17,6 +18,7 @@ class UserController {
 			return next(ApiError.badRequest("User with this email already exists"));
 		}
 		const hashPassword = await bcrypt.hash(password, 5); //salt is 5
+		const role = admins.findIndex((item) => item === email) === -1 ? "" : "ADMIN";
 		try {
 			const user = await User.create({ email, role, password: hashPassword });
 			const token = generateJwt(user.id, user.email, user.role);
