@@ -27,8 +27,17 @@ class OrderController {
 		}
 	}
 
-	async update(req, res, next) {
+	async complete(req, res, next) {
 		try {
+			const { id } = req.params;
+			let { transactionId, paymentAmount } = req.body;
+			const order = await Order.update(
+				{ status: "completed", transactionId, paymentAmount, paidAt: Date.now() },
+				{
+					where: { id },
+				}
+			);
+			return res.json(order);
 		} catch (error) {
 			next(ApiError.internal(error.message));
 		}
