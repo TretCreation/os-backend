@@ -113,32 +113,41 @@ class ProductController {
 		}
 	}
 
-	async getOne(req, res) {
+	async getOne(req, res, next) {
 		const { id } = req.params;
-		const product = await Product.findOne({
-			where: { id },
-			include: [
-				{ model: ProductInfo, as: "info" },
-				{ model: Type, as: "type" },
-				{ model: Brand, as: "brand" },
-			],
-		});
-		return res.json(product);
+		try {
+			const product = await Product.findOne({
+				where: { id },
+				include: [{ model: ProductInfo }, { model: Type }, { model: Brand }],
+			});
+			return res.json(product);
+		} catch (error) {
+			next(ApiError.internal(error.message));
+		}
 	}
 
-	async delete(req, res) {
+	async remove(req, res, next) {
 		const { id } = req.params;
-		const result = await Product.destroy({ where: { id } });
-		return res.json(result);
+		try {
+			const result = await Product.destroy({ where: { id } });
+			console.log(result);
+			return res.json(result);
+		} catch (error) {
+			next(ApiError.internal(error.message));
+		}
 	}
 
-	async deleteInfo(req, res) {
+	async deleteInfo(req, res, next) {
 		const { id } = req.params;
-		const result = await ProductInfo.destroy({ where: { id } });
-		return res.json(result);
+		try {
+			const result = await ProductInfo.destroy({ where: { id } });
+			return res.json(result);
+		} catch (error) {
+			next(ApiError.internal(error.message));
+		}
 	}
 
-	async getAll(req, res) {
+	async getAll(req, res, next) {
 		let { brandId, typeId, limit, page, filter = "" } = req.query;
 		page = page || 1;
 		limit = limit || 9;
@@ -146,19 +155,23 @@ class ProductController {
 		const name = { [Op.like]: `%${filter}%` };
 
 		let products;
-		if (!brandId && !typeId) {
-			products = await Product.findAndCountAll({ where: { name }, limit, offset });
+		try {
+			if (!brandId && !typeId) {
+				products = await Product.findAndCountAll({ where: { name }, limit, offset });
+			}
+			if (brandId && !typeId) {
+				products = await Product.findAndCountAll({ where: { name, brandId }, limit, offset });
+			}
+			if (!brandId && typeId) {
+				products = await Product.findAndCountAll({ where: { name, typeId } });
+			}
+			if (brandId && typeId) {
+				products = await Product.findAndCountAll({ where: { name, brandId, typeId } });
+			}
+			return res.json(products);
+		} catch (error) {
+			next(ApiError.internal(error.message));
 		}
-		if (brandId && !typeId) {
-			products = await Product.findAndCountAll({ where: { name, brandId }, limit, offset });
-		}
-		if (!brandId && typeId) {
-			products = await Product.findAndCountAll({ where: { name, typeId } });
-		}
-		if (brandId && typeId) {
-			products = await Product.findAndCountAll({ where: { name, brandId, typeId } });
-		}
-		return res.json(products);
 	}
 }
 

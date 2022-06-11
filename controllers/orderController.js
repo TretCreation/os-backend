@@ -1,6 +1,6 @@
 const uuid = require("uuid");
 const path = require("path");
-const { Op, Order, OrderProduct } = require("../models/models");
+const { Op, Order, OrderProduct, Product } = require("../models/models");
 const ApiError = require("../error/ApiError");
 
 class OrderController {
@@ -75,23 +75,17 @@ class OrderController {
 		}
 	}
 
-	async getOne(req, res) {
-		const { id } = req.params;
-		const product = await Product.findOne({
-			where: { id },
-			include: [
-				{ model: ProductInfo, as: "info" },
-				{ model: Type, as: "type" },
-				{ model: Brand, as: "brand" },
-			],
-		});
-		return res.json(product);
-	}
-
-	async deleteOrderProduct(req, res) {
-		const { id } = req.params;
-		const result = await ProductInfo.destroy({ where: { id } });
-		return res.json(result);
+	async getOne(req, res, next) {
+		try {
+			const { id } = req.params;
+			const order = await Order.findOne({
+				where: { id },
+				include: [{ model: OrderProduct, include: [Product] }],
+			});
+			return res.json(order);
+		} catch (error) {
+			next(ApiError.internal(error.message));
+		}
 	}
 }
 

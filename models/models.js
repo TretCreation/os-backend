@@ -46,7 +46,6 @@ const Order = sequelize.define("order", {
 	},
 	userId: {
 		type: DataTypes.INTEGER,
-		allowNull: false,
 	},
 	status: {
 		type: DataTypes.ENUM("pending", "completed", "canceled"),
@@ -155,14 +154,15 @@ User.hasMany(Order);
 
 Product.belongsTo(Type);
 Product.belongsTo(Brand);
+Product.hasMany(ProductInfo, { onDelete: "cascade" });
+ProductInfo.belongsTo(Product);
 Brand.hasMany(Product);
 Type.hasMany(Product);
-User.hasMany(Order);
-OrderProduct.belongsTo(Order);
+User.hasMany(Order, { onDelete: "restrict" });
 Order.belongsTo(User);
-Order.hasMany(OrderProduct);
-ProductInfo.belongsTo(Product);
-Product.hasMany(ProductInfo, { as: "info" });
+Order.hasMany(OrderProduct, { onDelete: "restrict" });
+OrderProduct.belongsTo(Order);
+OrderProduct.belongsTo(Product);
 
 module.exports = {
 	Op,
