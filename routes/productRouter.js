@@ -8,5 +8,6 @@ router.get("/:id", productController.getOne);
 router.patch("/:id", productController.update);
 router.delete("/:id", productController.remove);
 router.delete("/productInfo/:id", productController.deleteInfo);
+router.delete("/:id/recommended", productController.getRecommended);
 
 module.exports = router;

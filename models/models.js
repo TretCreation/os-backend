@@ -165,6 +165,7 @@ OrderProduct.belongsTo(Order);
 OrderProduct.belongsTo(Product);
 
 module.exports = {
+	sequelize,
 	Op,
 	User,
 	Order,

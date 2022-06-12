@@ -1,6 +1,6 @@
 const uuid = require("uuid");
 const path = require("path");
-const { Op, Product, ProductInfo, Type, Brand } = require("../models/models");
+const { sequelize, Op, Product, ProductInfo, Type, Brand } = require("../models/models");
 const ApiError = require("../error/ApiError");
 const AWS = require("aws-sdk");
 
@@ -169,6 +169,37 @@ class ProductController {
 				products = await Product.findAndCountAll({ where: { name, brandId, typeId } });
 			}
 			return res.json(products);
+		} catch (error) {
+			next(ApiError.internal(error.message));
+		}
+	}
+
+	async getRecommended(req, res, next) {
+		const { id } = req.params;
+
+		try {
+			const result = await sequelize.query(
+				`
+				SELECT COUNT(op.id), op."productId"
+				FROM order_products op
+				INNER JOIN orders o ON (o.id = op."orderId")
+				WHERE op."orderId" IN (
+					SELECT "orderId" FROM order_products
+					WHERE order_products."productId" = $id
+				)
+					AND op."productId" != $id
+					AND o."status" = 'completed'
+				GROUP BY op."productId"
+				ORDER BY COUNT(op.id) DESC
+				LIMIT 3
+			`,
+				{
+					bind: { id },
+				}
+			);
+			const recommendedProductIds = result[0].map((item) => item.productId);
+			const recommendedProducts = await Product.findAndCountAll({ where: { id: recommendedProductIds } });
+			return res.json(recommendedProducts.rows);
 		} catch (error) {
 			next(ApiError.internal(error.message));
 		}
