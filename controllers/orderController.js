@@ -7,8 +7,7 @@ class OrderController {
 	async create(req, res, next) {
 		try {
 			let { userId, cartData } = req.body;
-			console.log(userId, cartData);
-			const order = await Order.create({ userId });
+			const order = await Order.create({ userId: userId === "0" ? null : userId });
 
 			if (cartData) {
 				cartData = JSON.parse(cartData);
