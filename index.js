@@ -25,7 +25,7 @@ const start = async () => {
 		await sequelize.sync();
 		app.listen(PORT, () => console.log(`Started on port ${PORT}`));
 	} catch (error) {
-		console.log(error);
+		console.error(error);
 	}
 };
 

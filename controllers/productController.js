@@ -30,7 +30,6 @@ class ProductController {
 				},
 				(err, data) => {
 					if (err) return console.error(err);
-					console.log("Image uploaded", data);
 				}
 			);
 
@@ -72,7 +71,6 @@ class ProductController {
 					},
 					(err, data) => {
 						if (err) return console.error(err);
-						console.log("Image uploaded", data);
 					}
 				);
 				// TODO: remove old images
@@ -130,7 +128,6 @@ class ProductController {
 		const { id } = req.params;
 		try {
 			const result = await Product.destroy({ where: { id } });
-			console.log(result);
 			return res.json(result);
 		} catch (error) {
 			next(ApiError.internal(error.message));
@@ -148,7 +145,7 @@ class ProductController {
 	}
 
 	async getAll(req, res, next) {
-		let { brandId, typeId, limit, page, filter = "" } = req.query;
+		let { brands, typeId, page, limit, filter = "" } = req.query;
 		page = page || 1;
 		limit = limit || 9;
 		const offset = page * limit - limit;
@@ -156,17 +153,17 @@ class ProductController {
 
 		let products;
 		try {
-			if (!brandId && !typeId) {
+			if (!brands && !typeId) {
 				products = await Product.findAndCountAll({ where: { name }, limit, offset });
 			}
-			if (brandId && !typeId) {
-				products = await Product.findAndCountAll({ where: { name, brandId }, limit, offset });
+			if (brands && !typeId) {
+				products = await Product.findAndCountAll({ where: { name, brandId: brands }, limit, offset });
 			}
-			if (!brandId && typeId) {
+			if (!brands && typeId) {
 				products = await Product.findAndCountAll({ where: { name, typeId } });
 			}
-			if (brandId && typeId) {
-				products = await Product.findAndCountAll({ where: { name, brandId, typeId } });
+			if (brands && typeId) {
+				products = await Product.findAndCountAll({ where: { name, brandId: brands, typeId } });
 			}
 			return res.json(products);
 		} catch (error) {
