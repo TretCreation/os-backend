@@ -152,7 +152,7 @@ class ProductController {
 		page = page || 1;
 		limit = limit || 9;
 		const offset = page * limit - limit;
-		const name = { [Op.like]: `%${filter}%` };
+		const name = { [Op.iLike]: `%${filter}%` };
 
 		let products;
 		try {
